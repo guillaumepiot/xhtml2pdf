@@ -62,6 +62,7 @@ if sys.version[0] != '2':
 
 try:
     unicode = str #python 3
+    basestring = (str,bytes)
 except Exception:
     pass #python 2
 
