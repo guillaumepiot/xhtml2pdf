@@ -127,8 +127,8 @@ def split(text, delim=None):
         except Exception:
             pass
     elif delim is None and u'\xa0' in text:
-        return [uword.encode('utf8') for uword in _wsc_re_split(text)]
-    return [uword.encode('utf8') for uword in text.split(delim)]
+        return [uword for uword in _wsc_re_split(text)]
+    return [uword for uword in text.split(delim)]
 
 
 def strip(text):
@@ -137,7 +137,7 @@ def strip(text):
             text = text.decode('utf8')
         except Exception:
             pass
-    return text.strip().encode('utf8')
+    return text.strip()
 
 
 class ParaLines(ABag):
@@ -715,8 +715,6 @@ _scheme_re = re.compile('^[a-zA-Z][-+a-zA-Z0-9]+$')
 
 
 def _doLink(tx, link, rect):
-    if isinstance(link, unicode):
-        link = link.encode('utf8')
     parts = link.split(':', 1)
     scheme = len(parts) == 2 and parts[0].lower() or ''
     if _scheme_re.match(scheme) and scheme != 'document':

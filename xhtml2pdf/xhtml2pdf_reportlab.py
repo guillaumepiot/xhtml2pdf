@@ -31,13 +31,14 @@ import sys
 
 try:
     import StringIO
+    import StringIO.StringIO as BytesIO
 except Exception:
-    from io import StringIO
+    from io import StringIO, BytesIO
     StringIO_old = StringIO
     class StringIO(object):
         StringIO = StringIO_old
 
-import cgi
+import html
 import copy
 import logging
 import reportlab.pdfbase.pdfform as pdfform
@@ -128,7 +129,7 @@ class PmlBaseDoc(BaseDocTemplate):
         if getattr(flowable, "outline", False):
             self.notify('TOCEntry', (
                 flowable.outlineLevel,
-                cgi.escape(copy.deepcopy(flowable.text), 1),
+                html.escape(copy.deepcopy(flowable.text), 1),
                 self.page))
 
     def handle_nextPageTemplate(self, pt):
@@ -234,7 +235,7 @@ class PmlPageTemplate(PageTemplate):
                 if self.pisaBackground.mimetype.startswith("image/"):
 
                     try:
-                        self.img = PmlImageReader(StringIO.StringIO(self.pisaBackground.getData()))
+                        self.img = PmlImageReader(BytesIO(self.pisaBackground.getData()))
                         iw, ih = self.img.getSize()
                         pw, self.ph = canvas._pagesize
 
@@ -329,7 +330,7 @@ class PmlImageReader(object):  # TODO We need a factory here, returning either a
         else:
             try:
                 self.fp = open_for_read(fileName, 'b')
-                if isinstance(self.fp, StringIO.StringIO().__class__):
+                if isinstance(self.fp, BytesIO().__class__):
                     imageReaderFlags = 0  # avoid messing with already internal files
                 if imageReaderFlags > 0:  # interning
                     data = self.fp.read()
@@ -511,7 +512,7 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         return self.dWidth, self.dHeight
 
     def getImage(self):
-        img = PmlImageReader(StringIO.StringIO(self._imgdata))
+        img = PmlImageReader(BytesIO(self._imgdata))
         return img
 
     def draw(self):

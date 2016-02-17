@@ -17,16 +17,13 @@ import string
 import sys
 import tempfile
 import urllib
+from urllib import request
 
 if sys.version[0] == '2':
     TextType = unicode
 else:
     TextType = str
 
-try:
-    import urllib2
-except ImportError:
-    import urllib.request as urllib2
 try:
     import urlparse
 except ImportError:
@@ -565,7 +562,7 @@ class pisaFileObject:
             if urlParts.scheme == 'file':
                 if basepath and uri.startswith('/'):
                     uri = urlparse.urljoin(basepath, uri[1:])
-                urlResponse = urllib2.urlopen(uri)
+                urlResponse = request.urlopen(uri)
                 self.mimetype = urlResponse.info().get(
                     "Content-Type", '').split(";")[0]
                 self.uri = urlResponse.geturl()
@@ -579,18 +576,9 @@ class pisaFileObject:
                 if basepath:
                     uri = urlparse.urljoin(basepath, uri)
 
-                #path = urlparse.urlsplit(url)[2]
-                #mimetype = getMimeType(path)
+                # Open the file from url
+                r1 = request.urlopen(uri)
 
-                # Using HTTPLIB
-                server, path = urllib.splithost(uri[uri.find("//"):])
-                if uri.startswith("https://"):
-                    conn = httplib.HTTPSConnection(server)
-                else:
-                    conn = httplib.HTTPConnection(server)
-                conn.request("GET", path)
-                r1 = conn.getresponse()
-                # log.debug("HTTP %r %r %r %r", server, path, uri, r1)
                 if (r1.status, r1.reason) == (200, "OK"):
                     self.mimetype = r1.getheader(
                         "Content-Type", '').split(";")[0]
@@ -611,8 +599,8 @@ class pisaFileObject:
                         self.file = r1
                 else:
                     try:
-                        urlResponse = urllib2.urlopen(uri)
-                    except urllib2.HTTPError:
+                        urlResponse = request.urlopen(uri)
+                    except request.HTTPError:
                         return
                     self.mimetype = urlResponse.info().get(
                         "Content-Type", '').split(";")[0]
